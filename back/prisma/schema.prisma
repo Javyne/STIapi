@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  cliente_id Int      @id @default(autoincrement())
+  nombre     String   
+  direccion  String
+  telefono   String   
+  obs        String?   @db.Text
+  Equipo     Equipo[]
+}
+
+model Usuario {
+  user_id   Int     @id @default(autoincrement())
+  user_name String  @unique
+  pass      String
+  nombre    String
+  admin     Boolean @default(false)
+  tecnico   Boolean @default(false)
+  activo    Boolean @default(true)
+  obs       String?  @db.Text
+  Orden     Orden[]
+}
+
+model Marca {
+  marca  String   @id
+  Equipo Equipo[]
+}
+
+model Tipo_equipo {
+  tipo_equipo String   @id
+  Equipo      Equipo[]
+}
+
+model Equipo {
+  equipo_id      Int         @id @default(autoincrement())
+  cliente_id     Int
+  tipo_equipo    String
+  marca          String
+  modelo         String?
+  serie          String?
+  obs            String?      @db.Text
+  cliente_fk     Cliente     @relation(fields: [cliente_id], references: [cliente_id])
+  tipo_equipo_fk Tipo_equipo @relation(fields: [tipo_equipo], references: [tipo_equipo])
+  marca_fk       Marca       @relation(fields: [marca], references: [marca])
+  Orden          Orden[]
+}
+
+model Orden {
+  orden_id         Int      @id @default(autoincrement())
+  equipo_id        Int      
+  tecnico_id       Int
+  fecha_ingreso    DateTime
+  accesorios       String? 
+  defecto          String   @db.Text
+  reparacion       String?   @db.Text
+  costo            Float?   
+  presupuesto      Float?
+  fecha_reparacion DateTime?
+  fecha_entrega    DateTime?
+  aprobado         Boolean  @default(false)
+  reparado         Boolean  @default(false)
+  cobrado          Boolean  @default(false)
+  obs              String?   @db.Text
+  equipo_fk        Equipo   @relation(fields: [equipo_id], references: [equipo_id])
+  tecnico_fk       Usuario  @relation(fields: [tecnico_id], references: [user_id])
+}

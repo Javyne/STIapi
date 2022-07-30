@@ -1,0 +1,5 @@
+export * from './Clientes.jsx'
+export * from './Config.jsx'
+export * from './Home.jsx'
+export * from './Reparaciones.jsx'
+export * from './Usuarios.jsx'
