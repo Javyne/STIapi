@@ -1,23 +1,14 @@
+// RUTA-> /api/auth
 const { Router } = require('express');
-const { check } = require('express-validator');
-const { fieldsValidate } = require('../middlewares/fieldValidate');
 const router = Router();
 
-const { newUser, userLogin, tokenRenew, getUsers, getUser, editUser, logOut } = require('../controllers/auth');
+//CONTROLLER
+const { userLogin, tokenRenew, logOut } = require('../controllers/auth');
+
+//MIDDLEWARES
+const { check } = require('express-validator');
+const { fieldsValidate } = require('../middlewares/fieldValidate');
 const { jwtValidate } = require('../middlewares/tokenValidate');
-const { isAdmin } = require('../middlewares/rolValidate');
-
-/*
-RUTA /api/auth
-*/
-
-router.post('/new',
-    [
-        check('pass', 'Is Required, min 6 char').isLength({min: 6}),
-        fieldsValidate
-    ],
-    newUser
-);
 
 router.post('/', 
     [
@@ -27,16 +18,11 @@ router.post('/',
     userLogin
 );
 
-router.get('/renew', jwtValidate ,tokenRenew);
+router.use(jwtValidate);
 
-router.get('/logOut', jwtValidate ,logOut);
+router.get('/renew', tokenRenew);
 
-router.get('/', jwtValidate, isAdmin, getUsers);
-
-router.get('/:id', getUser);
-
-router.put('/:id', editUser)
-
+router.get('/logOut', logOut);
 
 
 module.exports = router;

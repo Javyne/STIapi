@@ -1,48 +1,9 @@
 const { response } = require('express');
-const { generateJWT } = require('../helpers/jwt');
-const { prisma, getDatas, getData, updateData } = require('../database/db');
+const { generateJWT, logOutJWT } = require('../helpers/jwt');
+const { prisma } = require('../database/db');
 
 //BcryptJS
 const bcrypt = require('bcryptjs');
-
-//Nuevo usuario
-const newUser = async (req, res = response) => {
-    //Request del body
-    const { nombre, user_name, rol, tecnico, obs } = req.body;
-
-    try {
-        //Busca el usuario, si existe retorna error
-        let user = await prisma.usuario.findFirst({ where: { user_name } });
-
-        if (user) {
-            return res.status(400).json({
-                ok: false,
-                msg: 'Usuario existente'
-            });
-        }
-
-        //Encripta contraseña
-        const salt = bcrypt.genSaltSync();
-        const pass = bcrypt.hashSync(req.body.pass, salt);
-
-        //Crea usuario y retorna user_id
-        const { user_id } = await prisma.usuario.create({
-            data: { user_name, pass, nombre, rol, tecnico, obs }
-        });
-
-        //Respuesta
-        if (user_id){
-            res.status(201).json({created:true});//CREADO
-        }else{
-            res.status(404).json({created:false});//NO ENCONTRADO
-        }
-
-        //Si hay error en la BD retorna ERROR
-    } catch (error) {
-        console.log(error)
-        res.status(500)
-    }
-}
 
 //Login user
 const userLogin = async (req, res = response) => {
@@ -72,10 +33,10 @@ const userLogin = async (req, res = response) => {
         }
 
         //Creo el JWT
-        const token = await generateJWT(user.user_id, user.nombre, user.admin)
+        const token = await generateJWT(user.user_id, user.nombre)
 
         //Respuesta JWT
-        res.status(201).json(token);
+        res.status(200).json({token, uid: user.user_id, nombre: user.nombre});
 
         //Si hay error en la BD retorna ERROR
     } catch (error) {
@@ -88,49 +49,23 @@ const userLogin = async (req, res = response) => {
 const tokenRenew = async (req, res = response) => {
 
     //Crear nuevo token
-    const { user_id, nombre, a } = req;
+    const { user_id, nombre } = req;
 
-    const token = await generateJWT(user_id, nombre, a);
+    const token = await generateJWT(user_id, nombre);
 
     //Respuesta JWT
-    res.status(201).json(token);
+    res.status(201).json({token, uid: user_id, nombre: nombre});
 }
 
 const logOut = async (req, res = response) => {
-    
+    res.status(200).json(logOutJWT())
 }
 
-//Obtener todos los usuarios
-const getUsers = (req, res = response) => {
-    getDatas(res, "usuario");
-}
-
-//Obtener un usuario por id
-const getUser = (req, res = response) => { 
-    
-    const where = { user_id: parseInt(req.params.id) }
-
-    getData(res, "usuario", where)
-    
-}
-
-//editar usuario
-const editUser = (req, res = response) => { 
-
-    const data = {...req.body};
-    const where = { user_id: parseInt(req.params.id) }
-
-    updateData(res, "usuario", where, data)
-}
 
 
 
 module.exports = {
-    editUser,
-    getUser,
-    getUsers,
     logOut,
-    newUser,
     tokenRenew,
     userLogin
 };

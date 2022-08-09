@@ -10,7 +10,7 @@ const generateJWT = (user_id, nombre, a) => {
         jwt.sign(
             peyload,
             process.env.SECRET_JWT_SEED,
-            { expiresIn: '2h' },
+            { expiresIn: '1h' },
             (err, token) => {
                 //Si hay error al crear el token
                 if (err) {
@@ -25,6 +25,32 @@ const generateJWT = (user_id, nombre, a) => {
 };
 
 
+
+const logOutJWT = () => {
+
+    return new Promise((resolve, reject) => {
+        //Creo peyload con data
+        const peyload = { out: true }
+
+        //Creo el JWT con la palabra secreta y con tiempo de expiracion de 2 hs
+        jwt.sign(
+            peyload,
+            process.env.SECRET_JWT_SEED,
+            { expiresIn: '1s' },
+            (err, token) => {
+                //Si hay error al crear el token
+                if (err) {
+                    console.log(err)
+                    reject('No se pudo generar el token');
+                }
+
+                resolve(token);
+
+            });
+    });
+};
+
 module.exports = {
-    generateJWT
+    generateJWT,
+    logOutJWT
 }

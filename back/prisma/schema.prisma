@@ -12,10 +12,10 @@ datasource db {
 
 model Cliente {
   cliente_id Int      @id @default(autoincrement())
-  nombre     String   
+  nombre     String
   direccion  String
-  telefono   String   
-  obs        String?   @db.Text
+  telefono   String
+  obs        String?  @db.Text
   Equipo     Equipo[]
 }
 
@@ -27,7 +27,7 @@ model Usuario {
   admin     Boolean @default(false)
   tecnico   Boolean @default(false)
   activo    Boolean @default(true)
-  obs       String?  @db.Text
+  obs       String? @db.Text
   Orden     Orden[]
 }
 
@@ -48,7 +48,7 @@ model Equipo {
   marca          String
   modelo         String?
   serie          String?
-  obs            String?      @db.Text
+  obs            String?     @db.Text
   cliente_fk     Cliente     @relation(fields: [cliente_id], references: [cliente_id])
   tipo_equipo_fk Tipo_equipo @relation(fields: [tipo_equipo], references: [tipo_equipo])
   marca_fk       Marca       @relation(fields: [marca], references: [marca])
@@ -56,21 +56,36 @@ model Equipo {
 }
 
 model Orden {
-  orden_id         Int      @id @default(autoincrement())
-  equipo_id        Int      
+  orden_id         Int       @id @default(autoincrement())
+  equipo_id        Int
   tecnico_id       Int
   fecha_ingreso    DateTime
-  accesorios       String? 
-  defecto          String   @db.Text
+  accesorios       String?
+  defecto          String    @db.Text
   reparacion       String?   @db.Text
-  costo            Float?   
+  costo            Float?
   presupuesto      Float?
   fecha_reparacion DateTime?
   fecha_entrega    DateTime?
-  aprobado         Boolean  @default(false)
-  reparado         Boolean  @default(false)
-  cobrado          Boolean  @default(false)
+  aprobado         Boolean   @default(false)
+  reparado         Boolean   @default(false)
+  cobrado          Boolean   @default(false)
   obs              String?   @db.Text
-  equipo_fk        Equipo   @relation(fields: [equipo_id], references: [equipo_id])
-  tecnico_fk       Usuario  @relation(fields: [tecnico_id], references: [user_id])
+  equipo_fk        Equipo    @relation(fields: [equipo_id], references: [equipo_id])
+  tecnico_fk       Usuario   @relation(fields: [tecnico_id], references: [user_id])
+}
+
+model Stock {
+  stock_id         Int  @id @default(autoincrement())
+  item_id          Int
+  cantidad_ingreso Int
+  cantidad_baja    Int
+  item_fk          Item @relation(fields: [item_id], references: [item_id])
+}
+
+model Item {
+  item_id Int     @id @default(autoincrement())
+  nombre  String  @unique
+  precio  Float
+  Stock   Stock[]
 }

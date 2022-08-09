@@ -11,11 +11,10 @@ const jwtValidate = (req, res = response, next) => {
     }
 
     try{
-        const {user_id, nombre, a} = jwt.verify(token, process.env.SECRET_JWT_SEED)
+        const {user_id, nombre} = jwt.verify(token, process.env.SECRET_JWT_SEED)
 
         req.user_id = user_id;
         req.nombre = nombre;
-        req.admin = a;
 
     }catch(err){    
         return res.status(401).json({ msg: 'Token invalido' });
